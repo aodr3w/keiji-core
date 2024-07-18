@@ -1,0 +1,4 @@
+github.com/aodr3w/logger v0.1.0 h1:F+mrWWfzBTPbTCKf8258dFi3lmIK2s2ETtqUIxHv96k=
+github.com/aodr3w/logger v0.1.0/go.mod h1:DT4Tj2GLcyqSDJ4tGbKJk9Df0WA2EJ8wUlP1FJ+YFqE=
+golang.org/x/crypto v0.25.0 h1:ypSNr+bnYL2YhwoMt2zPxHFmbAN1KZs/njMG3hxUp30=
+golang.org/x/crypto v0.25.0/go.mod h1:T+wALwcMOSE0kXgUAnPAHqTLW+XHgcELELW8VaDgm/M=
