@@ -33,7 +33,7 @@ type TaskModel struct {
 	LastExecutionTime *time.Time             `json:"lastExecutionTime"`
 	NextExecutionTime *time.Time             `json:"nextExecutionTime"`
 	LogPath           string                 `json:"logPath"`
-	Slug              string                 `json:"slug"`
+	Slug              string                 `gorm:"unique" json:"slug"`
 	Type              TaskType
 	Executable        string
 	IsRunning         bool
