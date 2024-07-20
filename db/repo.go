@@ -350,6 +350,7 @@ func (r *Repo) SetIsQueued(taskName string, value bool) (*TaskModel, error) {
 	if value {
 		//if true, set isRunning to false
 		task.IsRunning = false
+		task.IsError = false
 	}
 	task.IsQueued = value
 	if err := r.DB.Save(&task).Error; err != nil {
