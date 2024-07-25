@@ -12,8 +12,8 @@ type TaskStatus string
 type TaskType string
 
 const (
-	HMSTask TaskType = "HMS"
-	DayTime TaskType = "DayTime"
+	HMSTask     TaskType = "HMS"
+	DayTimeTask TaskType = "DayTime"
 )
 
 type UserModel struct {
