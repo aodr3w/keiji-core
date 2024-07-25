@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"regexp"
 	"syscall"
 
 	"log"
@@ -15,6 +16,8 @@ import (
 	"strings"
 
 	"github.com/aodr3w/keiji-core/paths"
+	"github.com/joho/godotenv"
+	"github.com/logrusorgru/aurora"
 )
 
 func GetHomeDir() string {
@@ -219,6 +222,40 @@ func HandleStopSignal(cleanup func()) {
 	cleanup()
 }
 
+func isValidTimeZone(tz string) bool {
+	// The regex checks for the format "City/Country"
+	re := regexp.MustCompile(`^[A-Za-z]+/[A-Za-z_]+$`)
+	return re.MatchString(tz)
+}
+
+func isValidSettings() bool {
+	err := godotenv.Load(paths.WORKSPACE_SETTINGS)
+	if err != nil {
+		log.Println(aurora.Red(fmt.Sprintf("settings error: %v", err)))
+		return false
+	}
+
+	DB_URL := os.Getenv("DB_URL")
+	DB_ENGINE := os.Getenv("DB_ENGINE")
+	TIME_ZONE := os.Getenv("TIME_ZONE")
+
+	if len(DB_URL) == 0 || (!strings.Contains(DB_URL, "/.keiji/db/keiji.db") && !strings.Contains(DB_URL, "postgres")) {
+		log.Println(aurora.Red(fmt.Sprintf("invalid dbURL, %v must be default `{{.Home}}/.keiji/db/keiji.db` or valid postgres db url", DB_URL)))
+		return false
+	}
+
+	if DB_ENGINE != "sqlite" && DB_ENGINE != "postgres" {
+		log.Println(aurora.Red("invalid DB_ENGINE must be sqlite or postgres"))
+		return false
+	}
+
+	if !isValidTimeZone(TIME_ZONE) {
+		log.Println(aurora.Red("invalid TIME_ZONE format, must be `City/Country`"))
+		return false
+	}
+
+	return true
+}
 func IsInit() bool {
 	//confirm work space has already been created
 	conf := func(exists bool, err error) bool {
@@ -232,5 +269,6 @@ func IsInit() bool {
 		conf(DirectoryExists(paths.SYSTEM_ROOT)) &&
 		conf(DirectoryExists(paths.WORKSPACE)) &&
 		conf(DirectoryExists(paths.WORKSPACE_SETTINGS)) &&
-		conf(DirectoryExists(paths.WORKSPACE_MODULE))
+		conf(DirectoryExists(paths.WORKSPACE_MODULE)) &&
+		isValidSettings()
 }
