@@ -15,7 +15,7 @@ var (
 	HTTP      Service = "http"
 	SCHEDULER Service = "scheduler"
 	CLEANER   Service = "cleaner"
-	TCP_BUS   Service = "tcp-bus"
+	TCP_BUS   Service = "bus"
 	SERVICES          = []Service{HTTP, SCHEDULER, CLEANER, TCP_BUS}
 )
 
