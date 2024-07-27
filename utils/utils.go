@@ -28,7 +28,7 @@ func GetHomeDir() string {
 	return usr.HomeDir
 }
 
-func DirectoryExists(path string) (bool, error) {
+func PathExists(path string) (bool, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return false, nil
 	} else if err != nil {
@@ -53,7 +53,7 @@ func CreateServiceLog(path string) error {
 	return nil
 }
 func CreateDir(path string) error {
-	if ok, err := DirectoryExists(path); !ok {
+	if ok, err := PathExists(path); !ok {
 		if err != nil {
 			return fmt.Errorf("an error occured checking for directory %v", err)
 		}
@@ -79,7 +79,7 @@ func GetSourcePath() string {
 	//TODO this needs to be improved
 	sourcePath := filepath.Join(root, "function", "main.go")
 	fmt.Println("sourcePath: ", sourcePath)
-	if ok, err := DirectoryExists(sourcePath); !ok {
+	if ok, err := PathExists(sourcePath); !ok {
 		log.Fatalf("failed to get source directory: %v", err)
 	}
 	return sourcePath
@@ -265,10 +265,10 @@ func IsInit() bool {
 		return true
 	}
 
-	return conf(DirectoryExists(paths.TASKS_PATH)) &&
-		conf(DirectoryExists(paths.SYSTEM_ROOT)) &&
-		conf(DirectoryExists(paths.WORKSPACE)) &&
-		conf(DirectoryExists(paths.WORKSPACE_SETTINGS)) &&
-		conf(DirectoryExists(paths.WORKSPACE_MODULE)) &&
+	return conf(PathExists(paths.TASKS_PATH)) &&
+		conf(PathExists(paths.SYSTEM_ROOT)) &&
+		conf(PathExists(paths.WORKSPACE)) &&
+		conf(PathExists(paths.WORKSPACE_SETTINGS)) &&
+		conf(PathExists(paths.WORKSPACE_MODULE)) &&
 		isValidSettings()
 }
