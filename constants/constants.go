@@ -12,6 +12,7 @@ const (
 type Service string
 
 var (
+	REPO      Service = "repo"
 	SERVER    Service = "server"
 	SCHEDULER Service = "scheduler"
 	CLEANER   Service = "cleaner"

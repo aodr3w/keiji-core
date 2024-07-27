@@ -15,12 +15,11 @@ var (
 	SERVICE_LOGS       = fmt.Sprintf("%v/logs/services", SYSTEM_ROOT)
 	TASK_EXECUTABLE    = fmt.Sprintf("%v/exec/tasks", SYSTEM_ROOT)
 	SERVICE_EXECUTABLE = fmt.Sprintf("%v/exec/services", SYSTEM_ROOT)
-	REPO_LOGS          = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, "repo")
-	TCP_BUS_LOGS       = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, "tcp-bus")
-	SCHEDULER_LOGS     = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, "scheduler")
-	EXECUTOR_LOGS      = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, "executor")
-	CLEANER_LOGS       = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, "cleaner")
-	HTTP_SERVER_LOGS   = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, "http")
+	REPO_LOGS          = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, constants.REPO)
+	TCP_BUS_LOGS       = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, constants.TCP_BUS)
+	SCHEDULER_LOGS     = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, constants.SCHEDULER)
+	CLEANER_LOGS       = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, constants.CLEANER)
+	HTTP_SERVER_LOGS   = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, constants.SERVER)
 	PID_PATH           = func(name constants.Service) string {
 		return fmt.Sprintf("%v/%v.pid", SERVICE_EXECUTABLE, name)
 	}
