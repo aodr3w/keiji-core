@@ -18,7 +18,6 @@ var (
 	REPO_LOGS          = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, constants.REPO)
 	TCP_BUS_LOGS       = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, constants.TCP_BUS)
 	SCHEDULER_LOGS     = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, constants.SCHEDULER)
-	CLEANER_LOGS       = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, constants.CLEANER)
 	HTTP_SERVER_LOGS   = fmt.Sprintf("%v/%v.log", SERVICE_LOGS, constants.SERVER)
 	PID_PATH           = func(name constants.Service) string {
 		return fmt.Sprintf("%v/%v.pid", SERVICE_EXECUTABLE, name)

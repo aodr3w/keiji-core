@@ -15,9 +15,8 @@ var (
 	REPO      Service = "repo"
 	SERVER    Service = "server"
 	SCHEDULER Service = "scheduler"
-	CLEANER   Service = "cleaner"
 	TCP_BUS   Service = "bus"
-	SERVICES          = []Service{SERVER, SCHEDULER, CLEANER, TCP_BUS}
+	SERVICES          = []Service{SERVER, SCHEDULER, TCP_BUS}
 )
 
 func IsService(name string) (serviceName Service, isService bool) {

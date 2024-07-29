@@ -3,6 +3,7 @@ module github.com/aodr3w/keiji-core
 go 1.22.1
 
 require (
+	github.com/aodr3w/keiji-tasks v0.1.0
 	github.com/aodr3w/logger v0.1.0
 	github.com/joho/godotenv v1.5.1
 	golang.org/x/crypto v0.25.0
@@ -10,6 +11,8 @@ require (
 	gorm.io/driver/sqlite v1.5.6
 	gorm.io/gorm v1.25.11
 )
+
+require github.com/google/uuid v1.6.0 // indirect
 
 require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
