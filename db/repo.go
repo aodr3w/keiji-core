@@ -21,6 +21,10 @@ type Repo struct {
 	mu     sync.Mutex
 }
 
+/*
+NewRepo is a factory function that returns an instance of the repo. Granting the caller
+database access
+*/
 func NewRepo() (*Repo, error) {
 	log, err := logger.NewFileLogger(paths.REPO_LOGS)
 	if err != nil {
@@ -71,12 +75,12 @@ func NewRepo() (*Repo, error) {
 func (r *Repo) Close() {
 	db, err := r.DB.DB()
 	if err != nil {
-		r.logger.Error("[close repo] failed to get db instance: %v", err)
+		r.logger.Error("failed to get db instance: %v", err)
 		return
 	}
 	err = db.Close()
 	if err != nil {
-		r.logger.Error("[close repo] error closing repo: %v", err)
+		r.logger.Error("error closing repo: %v", err)
 	}
 	r.logger.Info("repo closed successfully")
 }
@@ -118,8 +122,6 @@ func (r *Repo) SaveTask(task *TaskModel) error {
 		r.logger.Info("Task does not exist, creating new: %v", task.Name)
 		// Create a new task in the database
 		if err := tx.Create(task).Error; err != nil {
-			all, _ := r.GetAllTasks()
-			r.logger.Error("allTasks: %v", all)
 			r.logger.Fatal("Error occurred creating task %v: %v", task.Name, err)
 			tx.Rollback()
 			return err
