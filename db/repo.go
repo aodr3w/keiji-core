@@ -131,6 +131,7 @@ func (r *Repo) SaveTask(task *TaskModel) error {
 
 	// Commit the transaction
 	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
