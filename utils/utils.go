@@ -115,7 +115,7 @@ func CopyDir(src string, dst string) error {
 		dstPath := filepath.Join(dst, relPath)
 
 		if info.IsDir() {
-			return os.MkdirAll(dstPath, info.Mode())
+			return os.MkdirAll(dstPath, 0755)
 		}
 
 		return CopyFile(path, dstPath)
