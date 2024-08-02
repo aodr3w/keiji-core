@@ -22,8 +22,8 @@ type Repo struct {
 }
 
 /*
-NewRepo is a factory function that returns an instance of the repo. Granting the caller
-database access
+NewRepo is a factory function that returns an instance of Repo, granting
+the caller database access.
 */
 func NewRepo() (*Repo, error) {
 	log, err := logger.NewFileLogger(paths.REPO_LOGS)
@@ -65,13 +65,16 @@ func NewRepo() (*Repo, error) {
 		sync.Mutex{},
 	}
 	//insert defaultUser
-	err = repo.InsertDefaultUser()
+	err = repo.insertDefaultUser()
 	if err != nil {
 		log.Warn("insert default user error %v", err.Error())
 	}
 	return repo, nil
 }
 
+/*
+Close closes the DB instance/session attached to the repo
+*/
 func (r *Repo) Close() {
 	db, err := r.DB.DB()
 	if err != nil {
@@ -85,6 +88,10 @@ func (r *Repo) Close() {
 	r.logger.Info("repo closed successfully")
 }
 
+/*
+SaveTask attempts to save a task to the database.If
+it already exists, it will try to update the existing record
+*/
 func (r *Repo) SaveTask(task *TaskModel) error {
 	// Check if the task already exists in the database
 	r.mu.Lock()
@@ -138,28 +145,37 @@ func (r *Repo) SaveTask(task *TaskModel) error {
 	return nil
 }
 
+/*HMSScheduleChanged returns true if the schedule info on an HMSTask has changed*/
 func (r *Repo) HMSScheduleChanged(taskInfo *dto.TaskInfo, existingTask *TaskModel) bool {
 	s1 := taskInfo.Schedule
 	s2 := existingTask.ScheduleInfo
-	return s1["interval"] != s2["interval"] || s1["intervalUnits"] != s2["intervalUnits"]
+	return s1["interval"] != s2["interval"]
 }
 
+/*DayTimeTaskScheduleChanged returns true if the schedule info on a DayTimeTask has changed*/
 func (r *Repo) DayTimeTaskScheduleChanged(taskInfo *dto.TaskInfo, existingTask *TaskModel) bool {
 	s1 := taskInfo.Schedule
 	s2 := existingTask.ScheduleInfo
-	return s1["Day"] != s2["Day"] || s1["time"] != s2["time"]
+	return s1["day"] != s2["day"] || s1["time"] != s2["time"]
 }
 
+/*IsHMSTask returns True if task is of type HMSTask*/
 func (r *Repo) IsHMSTask(taskInfo *dto.TaskInfo) bool {
 	_, ok := taskInfo.Schedule["interval"]
-	return ok || taskInfo.Type == "HMS"
+	return ok || taskInfo.Type == string(HMSTask)
 }
 
+/*IsDayTimeTask returns True if task is of type DayTime*/
 func (r *Repo) IsDayTimeTask(taskInfo *dto.TaskInfo) bool {
-	_, ok := taskInfo.Schedule["time"]
-	return ok || taskInfo.Type == "DayTime"
+	_, timeOk := taskInfo.Schedule["time"]
+	_, dayOk := taskInfo.Schedule["day"]
+	return timeOk && dayOk || taskInfo.Type == string(DayTimeTask)
 }
 
+/*
+GetTaskByName queries the database for a record where
+task.Name = Name
+*/
 func (r *Repo) GetTaskByName(name string) (*TaskModel, error) {
 	var task TaskModel
 	result := r.DB.First(&task, "name = ?", name) // Find first task with the given name
@@ -171,6 +187,10 @@ func (r *Repo) GetTaskByName(name string) (*TaskModel, error) {
 
 }
 
+/*
+GetTaskByID queries the database for a record where
+task.taskID = taskID
+*/
 func (r *Repo) GetTaskByID(taskID string) (*TaskModel, error) {
 	var task TaskModel
 	result := r.DB.First(&task, "task_id = ?", taskID)
@@ -181,10 +201,17 @@ func (r *Repo) GetTaskByID(taskID string) (*TaskModel, error) {
 	return &task, nil
 }
 
+/*
+ResetIsQueued sets the IsQueued field to false for all tasks in the database
+*/
 func (r *Repo) ResetIsQueued() {
 	r.DB.Model(&TaskModel{}).Where("is_queued = ?", true).Update("is_queued", false)
 }
 
+/*
+GetRunnableTask queries the database for all runnableTasks i.e where
+is_queued=False, is_running=False & is_disabled=False
+*/
 func (r *Repo) GetRunnableTasks() ([]*TaskModel, error) {
 	tasks := make([]*TaskModel, 0)
 	if err := r.DB.Model(&TaskModel{}).Where(
@@ -195,6 +222,9 @@ func (r *Repo) GetRunnableTasks() ([]*TaskModel, error) {
 	return tasks, nil
 }
 
+/*
+GetRunningTasks queries the database for all tasks where isRunning = True
+*/
 func (r *Repo) GetRunningTasks() ([]*TaskModel, error) {
 	tasks := make([]*TaskModel, 0)
 	if err := r.DB.Model(&TaskModel{}).Where(
@@ -205,6 +235,9 @@ func (r *Repo) GetRunningTasks() ([]*TaskModel, error) {
 	return tasks, nil
 }
 
+/*
+GetAllTasks returns all tasks stored in the database
+*/
 func (r *Repo) GetAllTasks() ([]*TaskModel, error) {
 	tasks := make([]*TaskModel, 0)
 	if err := r.DB.Find(&tasks).Error; err != nil {
@@ -213,7 +246,8 @@ func (r *Repo) GetAllTasks() ([]*TaskModel, error) {
 	return tasks, nil
 }
 
-func (r *Repo) InsertDefaultUser() error {
+/*insertDefaultUser creates the default admin-user*/
+func (r *Repo) insertDefaultUser() error {
 	du := "admin"
 	var count int64
 	r.DB.Model(&UserModel{}).Where("user_name = ?", du).Count(&count)
@@ -243,6 +277,10 @@ func (r *Repo) InsertDefaultUser() error {
 	}
 	return nil
 }
+
+/*
+GetUserByName checks the database for a record where user.userName = userName
+*/
 func (r *Repo) GetUserByName(userName string) (*UserModel, error) {
 	dbUser := &UserModel{}
 	result := r.DB.Model(&UserModel{}).Where("user_name  = ? ", userName).First(dbUser)
@@ -252,6 +290,7 @@ func (r *Repo) GetUserByName(userName string) (*UserModel, error) {
 	return dbUser, nil
 }
 
+/*UpdateUser updates user details in the database if the provided information is non empty*/
 func (r *Repo) UpdateUser(currentUserName, currentUserPassword string, newUserInfo *dto.UserInfo) error {
 	_, err := r.AuthUser(&dto.UserInfo{
 		UserName: currentUserName,
@@ -283,6 +322,9 @@ func (r *Repo) UpdateUser(currentUserName, currentUserPassword string, newUserIn
 	return v.Error
 }
 
+/*
+AuthUser verifies the authentication information against the database
+*/
 func (r *Repo) AuthUser(userInfo *dto.UserInfo) (dbUser *UserModel, err error) {
 	dbUser = &UserModel{}
 	result := r.DB.Model(&UserModel{}).Where("user_name  = ? ", userInfo.UserName).First(dbUser)
@@ -298,11 +340,16 @@ func (r *Repo) AuthUser(userInfo *dto.UserInfo) (dbUser *UserModel, err error) {
 	return nil, fmt.Errorf("invalid username ,password combination")
 }
 
-func (r *Repo) ValidateToken(token string) (user *UserModel, err error) {
+/*VerifyToken checks if the provided token string exists in the database*/
+func (r *Repo) VerifyToken(token string) (user *UserModel, err error) {
 	result := r.DB.Model(&UserModel{}).Where("token = ?", token).First(&user)
 	return user, result.Error
 }
 
+/*
+SetIsRunning sets task.IsRunning field to value,
+returning an updated *TaskModel and an error
+*/
 func (r *Repo) SetIsRunning(taskName string, value bool) (*TaskModel, error) {
 	var task TaskModel
 	//Find the task by taskName
@@ -322,6 +369,10 @@ func (r *Repo) SetIsRunning(taskName string, value bool) (*TaskModel, error) {
 	return &task, nil
 }
 
+/*
+SetIsError sets task.IsError field to value ,
+returning *TaskModel and an error
+*/
 func (r *Repo) SetIsError(taskName string, value bool, err string) (*TaskModel, error) {
 	var task TaskModel
 	//Find the task by taskName
@@ -343,6 +394,10 @@ func (r *Repo) SetIsError(taskName string, value bool, err string) (*TaskModel, 
 	return &task, nil
 }
 
+/*
+SetIsQueued sets task.IsQueued field to value,
+returning *TaskModel and an error
+*/
 func (r *Repo) SetIsQueued(taskName string, value bool) (*TaskModel, error) {
 	var task TaskModel
 	//Find the task by taskName
@@ -363,6 +418,10 @@ func (r *Repo) SetIsQueued(taskName string, value bool) (*TaskModel, error) {
 	return &task, nil
 }
 
+/*
+SetIsDisabled sets task.IsDisabled field to value,
+returning *TaskModel and an error
+*/
 func (r *Repo) SetIsDisabled(taskName string, value bool) (*TaskModel, error) {
 	var task TaskModel
 	//Find the task by taskName
@@ -384,10 +443,15 @@ func (r *Repo) SetIsDisabled(taskName string, value bool) (*TaskModel, error) {
 	return &task, nil
 }
 
+/*DeleteTask attempts to delete the provided task from the database and returns an error*/
 func (r *Repo) DeleteTask(task *TaskModel) error {
 	return r.DB.Delete(&task, task.ID).Error
 }
 
+/*
+UpdateExecutionTime sets NextExecutionTime to t and LastExecutionTime to sub (if
+LastExecutionTime is currently nil)
+*/
 func (r *Repo) UpdateExecutionTime(task *TaskModel, t *time.Time, sub *time.Time) error {
 	task.LastExecutionTime = task.NextExecutionTime
 	if task.LastExecutionTime == nil {
