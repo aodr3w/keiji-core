@@ -13,7 +13,6 @@ type Service string
 
 var (
 	REPO      Service = "repo"
-	SERVER    Service = "server"
 	SCHEDULER Service = "scheduler"
 	TCP_BUS   Service = "bus"
 	SERVICES          = []Service{TCP_BUS, SCHEDULER}
