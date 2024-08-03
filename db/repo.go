@@ -38,8 +38,10 @@ func NewRepo() (*Repo, error) {
 	dbURL := os.Getenv("DB_URL")
 	dbType := os.Getenv("DB_ENGINE")
 
-	if len(dbURL) == 0 {
+	if dbURL == "default" {
 		dbURL = paths.DB
+	} else if len(dbURL) == 0 {
+		log.Fatal("please specify `default` (sql-lite3) or PSQL_URL")
 	}
 	if dbType != string(SQLite) && dbType != string(Postgres) {
 		log.Warn("unsuppored DB_ENGINE provided, defaulting to sqllite")
