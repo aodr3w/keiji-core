@@ -1,4 +1,4 @@
-package taskconfig
+package main
 
 import (
 	"log"

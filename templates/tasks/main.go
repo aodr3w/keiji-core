@@ -4,8 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-
-	taskconfig "github.com/aodr3w/keiji-core/templates/tasks/config"
 )
 
 /*This file is generated. Modify catiously*/
@@ -16,9 +14,9 @@ func main() {
 	run := flag.Bool("run", false, "provide true to run task's function")
 	flag.Parse()
 	if *schedule {
-		err = taskconfig.Schedule()
+		err = Schedule()
 	} else if *run {
-		err = taskconfig.Function()
+		err = Function()
 	} else {
 		err = fmt.Errorf("valid arguments: --schedule, --run")
 	}

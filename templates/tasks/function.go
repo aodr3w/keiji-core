@@ -1,4 +1,4 @@
-package taskconfig
+package main
 
 func Function() error {
 	/*
