@@ -35,7 +35,7 @@ func NewRepo() (*Repo, error) {
 		return nil, err
 	}
 
-	dbURL := os.Getenv("DBURL")
+	dbURL := os.Getenv("DB_URL")
 	dbType := os.Getenv("DB_ENGINE")
 
 	if len(dbURL) == 0 {
