@@ -16,7 +16,7 @@ var (
 	SERVER    Service = "server"
 	SCHEDULER Service = "scheduler"
 	TCP_BUS   Service = "bus"
-	SERVICES          = []Service{TCP_BUS, SERVER, SCHEDULER}
+	SERVICES          = []Service{TCP_BUS, SCHEDULER}
 )
 
 func IsService(name string) (serviceName Service, isService bool) {
