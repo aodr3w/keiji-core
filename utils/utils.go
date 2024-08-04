@@ -234,8 +234,8 @@ func isValidSettings() bool {
 	DB_ENGINE := os.Getenv("DB_ENGINE")
 	TIME_ZONE := os.Getenv("TIME_ZONE")
 
-	if len(DB_URL) == 0 || (!strings.Contains(DB_URL, "/.keiji/db/keiji.db") && !strings.Contains(DB_URL, "postgres")) {
-		log.Println(aurora.Red(fmt.Sprintf("invalid dbURL, %v must be default `{{.Home}}/.keiji/db/keiji.db` or valid postgres db url", DB_URL)))
+	if len(DB_URL) == 0 || (DB_URL != "default" && !strings.Contains(DB_URL, "postgres")) {
+		log.Println(aurora.Red(fmt.Sprintf("invalid dbURL, %v must be `default` or valid postgres db url", DB_URL)))
 		return false
 	}
 
