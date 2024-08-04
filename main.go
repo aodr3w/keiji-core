@@ -1,11 +1,20 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
-	"github.com/aodr3w/keiji-core/utils"
+	"github.com/aodr3w/keiji-core/db"
 )
 
 func main() {
-	fmt.Println(utils.GetSourcePath("calc"))
+	repo, err := db.NewRepo()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// tasks, err := repo.GetAllTasks()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// log.Println("all tasks:", tasks)
+	defer repo.Close()
 }

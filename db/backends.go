@@ -43,7 +43,7 @@ func (dbBackend *DatabaseBackend) Connect() (*gorm.DB, error) {
 	case SQLite:
 		err = utils.CreateDir(filepath.Dir(dbBackend.DBURL))
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 		db, err = gorm.Open(sqlite.Open(dbBackend.DBURL), &gorm.Config{})
 	case Postgres:
@@ -63,5 +63,15 @@ func (dbBackend *DatabaseBackend) AutoMigrate() error {
 	if err != nil {
 		return err
 	}
+	defer func() {
+		conn, err := db.DB()
+		if err != nil {
+			log.Printf("db error %v", err)
+		} else {
+			if err = conn.Close(); err != nil {
+				log.Println("error closing connection: ", err)
+			}
+		}
+	}()
 	return db.AutoMigrate(&TaskModel{}, &UserModel{})
 }

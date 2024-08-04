@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"sync"
 	"time"
 
@@ -25,6 +26,11 @@ type Repo struct {
 NewRepo is a factory function that returns an instance of Repo, granting
 the caller database access.
 */
+func isValidPostgresURL(url string) bool {
+	regexPattern := `^postgres(?:ql)?:\/\/(?:[a-zA-Z0-9]+)(?::[^@]+)?@(?:[a-zA-Z0-9._-]+):(?:\d+)\/(?:[a-zA-Z0-9_-]+)$`
+	re := regexp.MustCompile(regexPattern)
+	return re.MatchString(url)
+}
 func NewRepo() (*Repo, error) {
 	log, err := logger.NewFileLogger(paths.REPO_LOGS)
 	if err != nil {
@@ -35,17 +41,16 @@ func NewRepo() (*Repo, error) {
 		return nil, err
 	}
 
+	var dbType DatabaseType
 	dbURL := os.Getenv("DB_URL")
-	dbType := os.Getenv("DB_ENGINE")
 
 	if dbURL == "default" {
 		dbURL = paths.DB
-	} else if len(dbURL) == 0 {
-		log.Fatal("please specify `default` (sql-lite3) or PSQL_URL")
-	}
-	if dbType != string(SQLite) && dbType != string(Postgres) {
-		log.Warn("unsuppored DB_ENGINE provided, defaulting to sqllite")
-		dbType = string(SQLite)
+		dbType = SQLite
+	} else if isValidPostgresURL(dbURL) {
+		dbType = Postgres
+	} else {
+		return nil, fmt.Errorf("database url must be either `default` or valid postgresql URL")
 	}
 	backend := DatabaseBackend{
 		DBType: DatabaseType(dbType),
