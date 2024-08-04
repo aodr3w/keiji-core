@@ -7,5 +7,5 @@ import (
 )
 
 func main() {
-	fmt.Println(utils.IsInit())
+	fmt.Println(utils.GetSourcePath("calc"))
 }

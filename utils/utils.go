@@ -68,23 +68,13 @@ func GetExecutable(taskName string) (string, error) {
 	return fmt.Sprintf("%s/%s.bin", dir, taskName), nil
 }
 
-func GetSourcePath() string {
-
-	root := GetWd()
-	//TODO this needs to be improved
-	sourcePath := filepath.Join(root, "function", "main.go")
+func GetSourcePath(task string) string {
+	sourcePath := filepath.Join(os.Getenv("HOME"), "keiji", "tasks", task)
 	fmt.Println("sourcePath: ", sourcePath)
 	if ok, err := PathExists(sourcePath); !ok {
 		log.Fatalf("failed to get source directory: %v", err)
 	}
 	return sourcePath
-}
-
-func GetTargetPath(sep string, dir string) string {
-	cw := GetWd()
-	cw = strings.Split(cw, sep)[0]
-	r := filepath.Join(cw, dir)
-	return r
 }
 
 func GetWd() string {
