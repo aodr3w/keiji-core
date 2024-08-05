@@ -221,7 +221,6 @@ func isValidSettings() bool {
 	}
 
 	DB_URL := os.Getenv("DB_URL")
-	DB_ENGINE := os.Getenv("DB_ENGINE")
 	TIME_ZONE := os.Getenv("TIME_ZONE")
 
 	if len(DB_URL) == 0 || (DB_URL != "default" && !strings.Contains(DB_URL, "postgres")) {
@@ -229,7 +228,7 @@ func isValidSettings() bool {
 		return false
 	}
 
-	if DB_ENGINE != "sqlite" && DB_ENGINE != "postgres" {
+	if DB_URL != "default" && !IsValidPostgresURL(DB_URL) {
 		log.Println(aurora.Red("invalid DB_ENGINE must be sqlite or postgres"))
 		return false
 	}
@@ -241,6 +240,13 @@ func isValidSettings() bool {
 
 	return true
 }
+
+func IsValidPostgresURL(url string) bool {
+	regexPattern := `^postgres(?:ql)?:\/\/(?:[a-zA-Z0-9]+)(?::[^@]+)?@(?:[a-zA-Z0-9._-]+):(?:\d+)\/(?:[a-zA-Z0-9_-]+)$`
+	re := regexp.MustCompile(regexPattern)
+	return re.MatchString(url)
+}
+
 func IsInit() bool {
 	//confirm work space has already been created
 	conf := func(exists bool, err error) bool {

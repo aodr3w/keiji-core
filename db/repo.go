@@ -4,13 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"regexp"
 	"sync"
 	"time"
 
 	"github.com/aodr3w/keiji-core/auth"
 	"github.com/aodr3w/keiji-core/dto"
 	"github.com/aodr3w/keiji-core/paths"
+	"github.com/aodr3w/keiji-core/utils"
 	"github.com/aodr3w/logger"
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
@@ -26,11 +26,7 @@ type Repo struct {
 NewRepo is a factory function that returns an instance of Repo, granting
 the caller database access.
 */
-func isValidPostgresURL(url string) bool {
-	regexPattern := `^postgres(?:ql)?:\/\/(?:[a-zA-Z0-9]+)(?::[^@]+)?@(?:[a-zA-Z0-9._-]+):(?:\d+)\/(?:[a-zA-Z0-9_-]+)$`
-	re := regexp.MustCompile(regexPattern)
-	return re.MatchString(url)
-}
+
 func NewRepo() (*Repo, error) {
 	log, err := logger.NewFileLogger(paths.REPO_LOGS)
 	if err != nil {
@@ -47,7 +43,7 @@ func NewRepo() (*Repo, error) {
 	if dbURL == "default" {
 		dbURL = paths.DB
 		dbType = SQLite
-	} else if isValidPostgresURL(dbURL) {
+	} else if utils.IsValidPostgresURL(dbURL) {
 		dbType = Postgres
 	} else {
 		return nil, fmt.Errorf("database url must be either `default` or valid postgresql URL")
