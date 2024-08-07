@@ -9,16 +9,16 @@ import (
 
 	"github.com/aodr3w/keiji-core/auth"
 	"github.com/aodr3w/keiji-core/dto"
+	"github.com/aodr3w/keiji-core/logging"
 	"github.com/aodr3w/keiji-core/paths"
 	"github.com/aodr3w/keiji-core/utils"
-	"github.com/aodr3w/logger"
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
 
 type Repo struct {
 	DB     *gorm.DB
-	logger *logger.Logger
+	logger *logging.Logger
 	mu     sync.Mutex
 }
 
@@ -28,7 +28,7 @@ the caller database access.
 */
 
 func NewRepo() (*Repo, error) {
-	log, err := logger.NewFileLogger(paths.REPO_LOGS)
+	log, err := logging.NewFileLogger(paths.REPO_LOGS)
 	if err != nil {
 		return nil, err
 	}
