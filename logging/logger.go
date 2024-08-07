@@ -21,7 +21,7 @@ type Logger struct {
 	file     *os.File
 }
 
-func NewStdoutLogger(settingsPath string) *Logger {
+func NewStdoutLogger() *Logger {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	return &Logger{
 		logger,

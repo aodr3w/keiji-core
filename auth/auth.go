@@ -4,11 +4,11 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 
-	"github.com/aodr3w/logger"
+	"github.com/aodr3w/keiji-core/logging"
 	"golang.org/x/crypto/bcrypt"
 )
 
-var log = logger.NewStdoutLogger()
+var log = logging.NewStdoutLogger()
 
 func HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
