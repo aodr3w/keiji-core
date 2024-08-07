@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/aodr3w/keiji-tasks/core"
+	"github.com/aodr3w/keiji-core/tasks"
 )
 
 func Schedule() error {
@@ -14,5 +14,5 @@ func Schedule() error {
 			)
 	*/
 	log.Println("scheduling function...")
-	return core.NewSchedule().Run().Every(10).Seconds().Build()
+	return tasks.NewSchedule().Run().Every(10).Seconds().Build()
 }

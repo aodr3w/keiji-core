@@ -3,17 +3,13 @@ module github.com/aodr3w/keiji-core
 go 1.22.5
 
 require (
-	github.com/aodr3w/keiji-tasks v0.0.0-20240731121429-c054b7689193
+	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	gorm.io/driver/postgres v1.5.9
 )
 
-require (
-	github.com/aodr3w/logger v0.0.0-20240718094903-5071dde6db05 // indirect
-	github.com/google/uuid v1.6.0 // indirect
-	github.com/mattn/go-sqlite3 v1.14.22 // indirect
-)
+require github.com/mattn/go-sqlite3 v1.14.22 // indirect
 
 require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
