@@ -6,19 +6,51 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strconv"
 	"syscall"
 
 	"github.com/aodr3w/keiji-core/paths"
+	"github.com/joho/godotenv"
 )
 
 var (
-	SETTINGS = paths.WORKSPACE_SETTINGS
+	SETTINGS     = paths.WORKSPACE_SETTINGS
+	ROTATE_LOGS  = os.Getenv("ROTATE_LOGS") == "1"
+	LOG_MAX_SIZE = os.Getenv("LOG_MAX_SIZE")
 )
+
+func init() {
+	err := godotenv.Load(SETTINGS)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// LogSettings provides config information
+// for log rotation e.g wether to rotateLogs as well as maxLogSize
+type LogSettings struct {
+	Rotate  bool
+	MaxSize int64
+}
+
+// NewLogSettings returns an instance of *LogSettings
+// containing configuration information defined in WORKSPACE SETTINGS
+func NewLogSettings() *LogSettings {
+	logMaxSize, err := strconv.Atoi(LOG_MAX_SIZE)
+	if err != nil {
+		logMaxSize = 1024
+	}
+	return &LogSettings{
+		Rotate:  ROTATE_LOGS,
+		MaxSize: int64(logMaxSize),
+	}
+}
 
 type Logger struct {
 	logger   *slog.Logger
 	LogsPath string
 	file     *os.File
+	settings *LogSettings
 }
 
 func NewStdoutLogger() *Logger {
@@ -26,6 +58,7 @@ func NewStdoutLogger() *Logger {
 	return &Logger{
 		logger,
 		"",
+		nil,
 		nil,
 	}
 }
@@ -45,6 +78,7 @@ func NewFileLogger(out string) (*Logger, error) {
 		logger,
 		path,
 		file,
+		NewLogSettings(),
 	}, nil
 }
 
