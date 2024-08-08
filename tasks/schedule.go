@@ -70,6 +70,8 @@ func (p *RetryPolicy) Map() map[string]int64 {
 func NewSchedule() *Schedule {
 	return &Schedule{}
 }
+
+// Save `saves` task information to the database
 func (st *ScheduledTask) Save() error {
 	repo, err := db.NewRepo()
 	if err != nil {
@@ -177,6 +179,7 @@ func (d *IntervalTask) Hours() *Action {
 	}
 }
 
+// Assembles ScheduleInformation into a ScheduleTask struct for its caller
 func (a *Action) Build() error {
 	err := godotenv.Load()
 	if err != nil {
@@ -222,6 +225,7 @@ func (a *Action) Build() error {
 func (a *Action) E() string {
 	return a.executable
 }
+
 func (a *Action) N() int64 {
 	return a.n
 }
