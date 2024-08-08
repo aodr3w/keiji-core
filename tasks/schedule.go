@@ -187,7 +187,7 @@ func (a *Action) Build() error {
 	name := TASK_NAME
 	description := TASK_DESCRIPTION
 	slug := strings.Join(strings.Split(strings.ToLower(name), " "), "-")
-	log, err := logging.NewFileLogger(fmt.Sprintf("%v/%v", paths.TASK_LOG, slug))
+	log, err := logging.NewFileLogger(fmt.Sprintf("%v/%v", paths.TASK_LOG_DIR(slug), slug))
 	if err != nil {
 		return err
 	}
