@@ -13,5 +13,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	logging.Info("hello world")
+	for range 1000 {
+		logging.Info("hello world")
+	}
+
 }

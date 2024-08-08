@@ -2,12 +2,14 @@ package logging
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strconv"
 	"syscall"
+	"time"
 
 	"github.com/aodr3w/keiji-core/paths"
 	"github.com/joho/godotenv"
@@ -15,8 +17,8 @@ import (
 
 var (
 	SETTINGS     = paths.WORKSPACE_SETTINGS
-	ROTATE_LOGS  = os.Getenv("ROTATE_LOGS") == "1"
-	LOG_MAX_SIZE = os.Getenv("LOG_MAX_SIZE")
+	ROTATE_LOGS  bool
+	LOG_MAX_SIZE string
 )
 
 func init() {
@@ -24,6 +26,8 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	ROTATE_LOGS = os.Getenv("ROTATE_LOGS") == "1"
+	LOG_MAX_SIZE = os.Getenv("LOG_MAX_SIZE")
 }
 
 // LogSettings provides config information
@@ -47,12 +51,16 @@ func NewLogSettings() *LogSettings {
 }
 
 type Logger struct {
-	logger   *slog.Logger
-	LogsPath string
-	file     *os.File
-	settings *LogSettings
+	logger         *slog.Logger
+	LogsPath       string
+	file           *os.File
+	settings       *LogSettings
+	fallbackLogger *slog.Logger
 }
 
+func NewFallbackLogger() *slog.Logger {
+	return slog.New(slog.NewTextHandler(os.Stderr, nil))
+}
 func NewStdoutLogger() *Logger {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	return &Logger{
@@ -60,6 +68,7 @@ func NewStdoutLogger() *Logger {
 		"",
 		nil,
 		nil,
+		NewFallbackLogger(),
 	}
 }
 
@@ -68,7 +77,7 @@ func NewFileLogger(out string) (*Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		log.Fatalf("Failed to open log file: %v", err)
 	}
@@ -79,15 +88,19 @@ func NewFileLogger(out string) (*Logger, error) {
 		path,
 		file,
 		NewLogSettings(),
+		NewFallbackLogger(),
 	}, nil
 }
 
 func (l *Logger) logWithLock(logFunc func()) {
 	if err := l.lockFile(); err != nil {
-		log.Printf("Failed to lock log file: %v", err)
+		l.fallbackLogger.Error(fmt.Sprintf("Failed to lock log file: %v", err))
 		return
 	}
 	defer l.unlockFile()
+	if l.settings.Rotate {
+		l.rotateLogs()
+	}
 	logFunc()
 }
 
@@ -133,6 +146,51 @@ func (l *Logger) Fatal(text string, args ...interface{}) {
 
 func (l *Logger) format(text string, args ...interface{}) string {
 	return fmt.Sprintf(text, args...)
+}
+
+func (l *Logger) rotateLogs() {
+	if l.file == nil {
+		return
+	}
+	fileInfo, err := l.file.Stat()
+	if err != nil {
+		l.fallbackLogger.Error(fmt.Sprintf("Failed to get log file info: %v", err))
+		return
+	}
+
+	if fileInfo.Size() >= l.settings.MaxSize {
+		timestamp := time.Now().Format("20060102150405")
+		newPath := fmt.Sprintf("%s.%s", l.LogsPath, timestamp)
+		newFile, err := os.OpenFile(newPath, os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			l.fallbackLogger.Error(fmt.Sprintf("failed to create rotated log file: %v", err))
+			return
+		}
+		defer newFile.Close()
+
+		// Ensure all writes are completed before seeking
+		if err := l.file.Sync(); err != nil {
+			l.fallbackLogger.Error(fmt.Sprintf("Failed to sync log file: %v", err))
+			return
+		}
+		if _, err := l.file.Seek(0, 0); err != nil {
+			l.fallbackLogger.Error(fmt.Sprintf("failed to seek log file: %v", err))
+		}
+		if _, err = io.Copy(newFile, l.file); err != nil {
+			l.fallbackLogger.Error(fmt.Sprintf("Failed to copy log content to rotated log file: %v", err))
+			return
+		}
+		if err = l.file.Truncate(0); err != nil {
+			l.fallbackLogger.Error(fmt.Sprintf("Failed to truncate log file: %v", err))
+			return
+		}
+
+		if _, err = l.file.Seek(0, 0); err != nil {
+			l.fallbackLogger.Error(fmt.Sprintf("Failed to seek log file after truncation: %v", err))
+			return
+		}
+		return
+	}
 }
 
 func getLogsPath(path string) (string, error) {
