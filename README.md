@@ -1,13 +1,14 @@
-# KEIJ-CORE
+# KEIJI-CORE
 
-## about  
+## about
 
-keiji core is provides keiji services with access to core functionality such as 
-logging, storage, path management, templates , utility functions, constants etc.
+- `Keiji-Core` is the backbone of the Keiji scheduling system. It provides essential core functionality used across the main repository, bus service, and scheduler.
 
-## used by
-- keiji-main - https://github.com/aodr3w/keiji
-- scheduler - https://github.com/aodr3w/keiji-scheduler
--  bus - https://github.com/aodr3w/keiji-bus
+## features
 
-
+**Logging & Log Rotation**: Centralized logging with automatic log rotation.
+**Constants**: Shared constants used throughout the system.
+**Database Access**: Common database access methods and utilities.
+**Task Creation API & Templates**: Standardized API and templates for task creation.
+**Utility Functions**: Reusable utility functions for various purposes.
+**And More**: Additional core features that support the entire Keiji system.
