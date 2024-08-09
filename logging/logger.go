@@ -24,7 +24,7 @@ var (
 func init() {
 	err := godotenv.Load(SETTINGS)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	ROTATE_LOGS = os.Getenv("ROTATE_LOGS") == "1"
 	LOG_MAX_SIZE = os.Getenv("LOG_MAX_SIZE")
