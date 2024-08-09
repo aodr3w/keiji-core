@@ -135,7 +135,13 @@ func (d *TaskDay) Sunday() *TaskTime {
 }
 
 func (tt *TaskTime) At(t string) *Action {
-	layout := "15:04"
+	var layout string
+	tail := string(t[len(t)-2:])
+	if strings.EqualFold(tail, "AM") || strings.EqualFold(tail, "PM") {
+		layout = "03:04PM"
+	} else {
+		layout = "15:04"
+	}
 	if _, err := time.Parse(layout, t); err != nil {
 		panic(fmt.Sprintf("incorrect time value: %v  should be in format %v ", t, layout))
 	}
