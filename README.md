@@ -6,7 +6,7 @@
 
 ## features
 
-- **Logging & Log Rotation**: Centralized logging with automatic log rotation.
+- **Logging & Log Rotation**: Centralized logging with  opt-in log rotation.
 
 - **Constants**: Shared constants used throughout the system.
 
