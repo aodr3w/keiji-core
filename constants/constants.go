@@ -1,7 +1,5 @@
 package constants
 
-import "strings"
-
 type ServiceStatus string
 
 const (
@@ -17,12 +15,3 @@ var (
 	TCP_BUS   Service = "bus"
 	SERVICES          = []Service{TCP_BUS, SCHEDULER}
 )
-
-func IsService(name string) (serviceName Service, isService bool) {
-	for _, s := range SERVICES {
-		if strings.EqualFold(string(s), name) {
-			return s, true
-		}
-	}
-	return "", false
-}
