@@ -2,7 +2,7 @@
 
 ## about
 
-- `Keiji-Core` is the backbone of the Keiji scheduling system. It provides essential core functionality used across the main repository, bus service, and scheduler.
+- `Keiji-Core` is the backbone of the Keiji scheduling system. It provides essential core functionality used by the main repository, keiji-bus and keiji-scheduler.
 
 ## features
 
