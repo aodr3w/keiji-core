@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"regexp"
 	"syscall"
+	"time"
 
 	"log"
 	"os"
@@ -262,4 +263,20 @@ func IsInit() bool {
 		conf(PathExists(paths.WORKSPACE_SETTINGS)) &&
 		conf(PathExists(paths.WORKSPACE_MODULE)) &&
 		isValidSettings()
+}
+
+func ParseTimeStr(t string) (time.Time, error) {
+	var layout string
+	tail := string(t[len(t)-2:])
+	if strings.EqualFold(tail, "AM") || strings.EqualFold(tail, "PM") {
+		layout = "03:04PM"
+	} else {
+		layout = "15:04"
+	}
+	pt, err := time.Parse(layout, t)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("incorrect time value: %v  should be in format %v ", t, layout)
+	}
+
+	return pt, nil
 }
