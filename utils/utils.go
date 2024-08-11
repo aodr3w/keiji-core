@@ -301,5 +301,5 @@ func DeleteTaskLog(logsPath string) error {
 	if !exists {
 		return fmt.Errorf("logs Path %v not found", logsPath)
 	}
-	return os.Remove(logsPath)
+	return os.RemoveAll(logsPath)
 }
