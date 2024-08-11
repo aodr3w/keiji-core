@@ -280,3 +280,26 @@ func ParseTimeStr(t string) (time.Time, error) {
 
 	return pt, nil
 }
+
+func DeleteTaskExecutable(executable string) error {
+	dir := filepath.Dir(executable)
+	runFile := filepath.Join(dir, fmt.Sprintf("%v_run.bin", strings.ReplaceAll(filepath.Base(executable), ".bin", "")))
+	for _, f := range []string{executable, runFile} {
+		err := os.Remove(f)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func DeleteTaskLog(logsPath string) error {
+	exists, err := PathExists(logsPath)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("logs Path %v not found", logsPath)
+	}
+	return os.Remove(logsPath)
+}
