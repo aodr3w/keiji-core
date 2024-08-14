@@ -41,7 +41,7 @@ func (dbBackend *DatabaseBackend) Connect() (*gorm.DB, error) {
 
 	switch dbBackend.DBType {
 	case SQLite:
-		err = utils.CreateDir(filepath.Dir(dbBackend.DBURL))
+		err = utils.CreateDir(filepath.Dir(dbBackend.DBURL), 0775)
 		if err != nil {
 			return nil, err
 		}

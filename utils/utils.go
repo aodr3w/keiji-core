@@ -39,7 +39,7 @@ func PathExists(path string) (bool, error) {
 }
 
 func CreateServiceLog(path string) error {
-	err := CreateDir(filepath.Dir(path))
+	err := CreateDir(filepath.Dir(path), 0644)
 	if err != nil {
 		return err
 	}
@@ -53,8 +53,8 @@ func CreateServiceLog(path string) error {
 	}
 	return nil
 }
-func CreateDir(path string) error {
-	if err := os.MkdirAll(path, 0755); err != nil {
+func CreateDir(path string, perm fs.FileMode) error {
+	if err := os.MkdirAll(path, perm); err != nil {
 		return fmt.Errorf("failed to create directory: %v", err)
 	}
 	return nil
@@ -62,7 +62,7 @@ func CreateDir(path string) error {
 
 func GetExecutable(taskName string) (string, error) {
 	dir := paths.TASK_EXECUTABLE
-	err := CreateDir(dir)
+	err := CreateDir(dir, 0755)
 	if err != nil {
 		return "", err
 	}
@@ -87,7 +87,7 @@ func GetWd() string {
 	return cwd
 }
 
-func CopyDir(src string, dst string) error {
+func CopyDir(src string, dst string, perm fs.FileMode) error {
 	return filepath.Walk(src, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -101,15 +101,15 @@ func CopyDir(src string, dst string) error {
 		dstPath := filepath.Join(dst, relPath)
 
 		if info.IsDir() {
-			return os.MkdirAll(dstPath, 0755)
+			return os.MkdirAll(dstPath, perm)
 		}
 
-		return CopyFile(path, dstPath)
+		return CopyFile(path, dstPath, perm)
 
 	})
 }
 
-func CopyFile(src, dst string) error {
+func CopyFile(src, dst string, perm fs.FileMode) error {
 	sourceFile, err := os.Open(src)
 	if err != nil {
 		return fmt.Errorf("failed to open source file: %w", err)
@@ -133,8 +133,8 @@ func CopyFile(src, dst string) error {
 		return fmt.Errorf("failed to sync destination file: %w", err)
 	}
 
-	// Set executable permissions on the destination file
-	err = os.Chmod(dst, 0755)
+	// Set permissions on destination file
+	err = os.Chmod(dst, perm)
 	if err != nil {
 		return fmt.Errorf("failed to set permissions on destination file: %w", err)
 	}
